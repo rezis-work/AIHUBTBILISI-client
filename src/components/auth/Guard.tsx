@@ -2,19 +2,27 @@ import { excludedRoutes } from "../../constants/excluded-routes";
 import { useGetMe } from "../../hooks/use-get-me";
 import { useEffect, type ReactNode } from "react";
 import { authenticatedVar } from "../../constants/authenticated";
+import { UNKNOWN_ERROR_SNACK_MESSAGE } from "../../constants/errors";
+import { snackVar } from "../../constants/snack";
 
 interface GuardProps {
   children: ReactNode;
 }
 
 const Guard = ({ children }: GuardProps) => {
-  const { data: user } = useGetMe();
+  const { data: user, error } = useGetMe();
 
   useEffect(() => {
     if (user) {
       authenticatedVar(true);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (error && "networkError" in error) {
+      snackVar(UNKNOWN_ERROR_SNACK_MESSAGE);
+    }
+  }, [error]);
 
   return (
     <>

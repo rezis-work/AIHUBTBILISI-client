@@ -1,5 +1,10 @@
 import { useState } from "react";
 import client from "../constants/apollo-client";
+import {
+  UNKNOWN_ERROR_MESSAGE,
+  UNKNOWN_ERROR_SNACK_MESSAGE,
+} from "../constants/errors";
+import { snackVar } from "../constants/snack";
 
 interface LoginRequest {
   email: string;
@@ -21,10 +26,11 @@ const useLogin = () => {
     if (!res.ok) {
       if (res.status === 401) {
         setError("Credentials are not valid");
+      } else {
+        setError(UNKNOWN_ERROR_MESSAGE);
+        snackVar(UNKNOWN_ERROR_SNACK_MESSAGE);
       }
       return;
-    } else {
-      setError("Unexpected error occurred.");
     }
     setError("");
     await client.refetchQueries({ include: "active" });

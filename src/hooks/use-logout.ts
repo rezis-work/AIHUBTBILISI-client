@@ -1,9 +1,12 @@
 const useLogout = () => {
   const logout = async () => {
-    await fetch("/auth/logout", {
+    const res = await fetch("/auth/logout", {
       method: "POST",
       credentials: "include",
     });
+    if (!res.ok) {
+      throw new Error("Failed to logout.");
+    }
   };
 
   return { logout };

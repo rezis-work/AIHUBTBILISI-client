@@ -5,6 +5,11 @@ import { useCreateUser } from "../../hooks/use-create-user";
 import { useState } from "react";
 import { extractErrorMessage } from "../../utils/errors";
 import { useLogin } from "../../hooks/use-login";
+import {
+  UNKNOWN_ERROR_MESSAGE,
+  UNKNOWN_ERROR_SNACK_MESSAGE,
+} from "../../constants/errors";
+import { snackVar } from "../../constants/snack";
 
 const Signup = () => {
   const { login } = useLogin();
@@ -31,7 +36,8 @@ const Signup = () => {
             setError(errorMessage);
             return;
           }
-          setError("Unexpected error occurred.");
+          setError(UNKNOWN_ERROR_MESSAGE);
+          snackVar(UNKNOWN_ERROR_SNACK_MESSAGE);
         }
       }}
       error={error}

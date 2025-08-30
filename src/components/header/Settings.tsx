@@ -8,6 +8,8 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { useLogout } from "../../hooks/use-logout";
 import { onLogout } from "../../utils/logout";
+import { snackVar } from "../../constants/snack";
+import { UNKNOWN_ERROR_SNACK_MESSAGE } from "../../constants/errors";
 
 const Settings = () => {
   const { logout } = useLogout();
@@ -47,9 +49,13 @@ const Settings = () => {
           <MenuItem
             key={"logout"}
             onClick={async () => {
-              await logout();
-              onLogout();
-              handleCloseUserMenu();
+              try {
+                await logout();
+                onLogout();
+                handleCloseUserMenu();
+              } catch {
+                snackVar(UNKNOWN_ERROR_SNACK_MESSAGE);
+              }
             }}
           >
             <Typography sx={{ textAlign: "center" }}>Logout</Typography>
