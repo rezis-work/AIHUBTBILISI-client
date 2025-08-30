@@ -2,8 +2,7 @@ import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { ErrorLink } from "@apollo/client/link/error";
 import { API_URL } from "./urls";
 import { excludedRoutes } from "./excluded-routes";
-import router from "../components/Routes";
-import client from "./apollo-client";
+import { onLogout } from "../utils/logout";
 
 interface ErrorResponse {
   data: null;
@@ -39,8 +38,7 @@ const logoutLink = new ErrorLink((err) => {
         window.location.pathname as (typeof excludedRoutes)[number]
       )
     ) {
-      router.navigate("/login");
-      client.resetStore();
+      onLogout();
     }
   }
 });

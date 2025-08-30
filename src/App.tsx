@@ -10,6 +10,7 @@ import { ApolloProvider } from "@apollo/client/react";
 import apolloClient from "./constants/apollo-client";
 import router from "./components/Routes";
 import Guard from "./components/auth/Guard";
+import Header from "./components/header/Header";
 
 const darkTheme = createTheme({
   palette: {
@@ -22,6 +23,7 @@ function App() {
     <ApolloProvider client={apolloClient}>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
+        <Header />
         <Container>
           <Guard>
             <RouterProvider router={router} />
