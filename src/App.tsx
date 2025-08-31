@@ -2,6 +2,7 @@ import {
   Container,
   createTheme,
   CssBaseline,
+  Grid,
   ThemeProvider,
 } from "@mui/material";
 
@@ -12,6 +13,8 @@ import router from "./components/Routes";
 import Guard from "./components/auth/Guard";
 import Header from "./components/header/Header";
 import SnackbarComponent from "./components/snackbar/SnackbarComponent";
+import ChatList from "./components/chat-list/ChatList";
+import { usePath } from "./hooks/use-path";
 
 const darkTheme = createTheme({
   palette: {
@@ -20,20 +23,39 @@ const darkTheme = createTheme({
 });
 
 function App() {
+  const { path } = usePath();
+
   return (
     <ApolloProvider client={apolloClient}>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <Header />
-        <Container>
-          <Guard>
-            <RouterProvider router={router} />
-          </Guard>
-        </Container>
+        <Guard>
+          {path === "/" ? (
+            <Grid container>
+              <Grid size={3}>
+                <ChatList />
+              </Grid>
+              <Grid size={9}>
+                <Routes />
+              </Grid>
+            </Grid>
+          ) : (
+            <Routes />
+          )}
+        </Guard>
         <SnackbarComponent />
       </ThemeProvider>
     </ApolloProvider>
   );
 }
+
+const Routes = () => {
+  return (
+    <Container>
+      <RouterProvider router={router} />
+    </Container>
+  );
+};
 
 export default App;
