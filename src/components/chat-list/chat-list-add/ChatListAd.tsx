@@ -14,6 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { useCreateChat } from "../../../hooks/use-create-chat";
 
 interface ChatListAddProps {
   open: boolean;
@@ -22,6 +23,8 @@ interface ChatListAddProps {
 
 const ChatListAdd = ({ open, handleClose }: ChatListAddProps) => {
   const [isPrivate, setIsPrivate] = useState<boolean>(true);
+  const [name, setName] = useState<string | undefined>(undefined);
+  const [createChat] = useCreateChat();
 
   return (
     <Modal open={open} onClose={handleClose}>
@@ -70,9 +73,27 @@ const ChatListAdd = ({ open, handleClose }: ChatListAddProps) => {
               </IconButton>
             </Paper>
           ) : (
-            <TextField label="Name" />
+            <TextField
+              label="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           )}
-          <Button variant="outlined">Save</Button>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              createChat({
+                variables: {
+                  createChatInput: {
+                    isPrivate,
+                    name: name || undefined,
+                  },
+                },
+              });
+            }}
+          >
+            Save
+          </Button>
         </Stack>
       </Box>
     </Modal>
