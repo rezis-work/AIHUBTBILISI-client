@@ -15,6 +15,8 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useCreateChat } from "../../../hooks/use-create-chat";
+import { UNKNOWN_ERROR_MESSAGE } from "../../../constants/errors";
+import router from "../../Routes";
 
 interface ChatListAddProps {
   open: boolean;
@@ -22,12 +24,20 @@ interface ChatListAddProps {
 }
 
 const ChatListAdd = ({ open, handleClose }: ChatListAddProps) => {
-  const [isPrivate, setIsPrivate] = useState<boolean>(true);
+  const [isPrivate, setIsPrivate] = useState<boolean>(false);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [name, setName] = useState<string | undefined>(undefined);
   const [createChat] = useCreateChat();
 
+  const onClose = () => {
+    setError(undefined);
+    setName(undefined);
+    setIsPrivate(false);
+    handleClose();
+  };
+
   return (
-    <Modal open={open} onClose={handleClose}>
+    <Modal open={open} onClose={onClose}>
       <Box
         sx={{
           position: "absolute" as const,
@@ -50,7 +60,7 @@ const ChatListAdd = ({ open, handleClose }: ChatListAddProps) => {
               style={{ width: 0 }}
               control={
                 <Switch
-                  defaultChecked
+                  defaultChecked={isPrivate}
                   value={isPrivate}
                   onChange={(e) => setIsPrivate(e.target.checked)}
                 />
@@ -76,20 +86,32 @@ const ChatListAdd = ({ open, handleClose }: ChatListAddProps) => {
             <TextField
               label="Name"
               value={name}
+              error={!!error}
+              helperText={error ? error : ""}
               onChange={(e) => setName(e.target.value)}
             />
           )}
           <Button
             variant="outlined"
-            onClick={() => {
-              createChat({
-                variables: {
-                  createChatInput: {
-                    isPrivate,
-                    name: name || undefined,
+            onClick={async () => {
+              if (!name) {
+                setError("Name is required");
+                return;
+              }
+              try {
+                const chat = await createChat({
+                  variables: {
+                    createChatInput: {
+                      isPrivate,
+                      name: name || undefined,
+                    },
                   },
-                },
-              });
+                });
+                onClose();
+                router.navigate(`/chats/${chat.data?.createChat._id}`);
+              } catch {
+                setError(UNKNOWN_ERROR_MESSAGE);
+              }
             }}
           >
             Save
