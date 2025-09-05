@@ -15,6 +15,18 @@ export default defineConfig({
         target: "http://localhost:4200",
         changeOrigin: true,
       },
+      "/api/chat": {
+        target: "http://localhost:4200",
+        changeOrigin: true,
+      },
+      "/messages": {
+        target: "http://localhost:4200",
+        changeOrigin: true,
+      },
+      "/users": {
+        target: "http://localhost:4200",
+        changeOrigin: true,
+      },
     },
   },
 });

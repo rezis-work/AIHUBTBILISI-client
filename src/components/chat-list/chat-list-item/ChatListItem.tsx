@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Box,
   Divider,
   ListItem,
   ListItemAvatar,
@@ -9,6 +10,7 @@ import {
 } from "@mui/material";
 import router from "../../Routes";
 import type { Chat } from "../../../gql/graphql";
+import "./chat-list-item.css";
 
 interface ChatListItemProps {
   chat: Chat;
@@ -29,21 +31,29 @@ const ChatListItem = ({ chat, selected }: ChatListItemProps) => {
           <ListItemText
             primary={chat.name ? chat.name : "No name"}
             secondary={
-              <>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: "0.5rem",
+                }}
+              >
                 <Typography
                   component="span"
                   variant="body2"
                   sx={{ color: "text.primary", display: "inline" }}
                 >
-                  Ali Connors
+                  {chat.latestMessage?.user.username}
                 </Typography>
-                {" — I'll be in your neighborhood doing errands this…"}
-              </>
+                <div className="content">
+                  {" " + (chat.latestMessage?.content ?? "No message")}
+                </div>
+              </Box>
             }
           />
         </ListItemButton>
       </ListItem>
-      <Divider />
+      <Divider variant="inset" />
     </>
   );
 };

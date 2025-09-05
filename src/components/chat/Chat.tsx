@@ -15,23 +15,42 @@ import SendIcon from "@mui/icons-material/Send";
 import { useCreateMessage } from "../../hooks/use-create-message";
 import { useEffect, useRef, useState } from "react";
 import { useGetMessages } from "../../hooks/use-get-messages";
+import { PAGE_SIZE } from "../../constants/page-size";
+import { useCountMessages } from "../../hooks/use-count-messages";
+import InfiniteScroll from "react-infinite-scroller";
 
 const Chat = () => {
   const { _id } = useParams();
   const [message, setMessage] = useState<string>("");
+  const [hasMore, setHasMore] = useState(true);
   const { data } = useGetChat({ _id: _id! });
-  const [createMessage] = useCreateMessage(_id!);
-  const { data: messagesData } = useGetMessages({ chatId: _id! });
+  const [createMessage] = useCreateMessage();
+  const {
+    data: messagesData,
+    fetchMore,
+    loading,
+  } = useGetMessages({
+    chatId: _id!,
+    skip: 0,
+    limit: PAGE_SIZE,
+  });
   const divRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
+  const { messagesCount, countMessages } = useCountMessages(_id!);
+
+  useEffect(() => {
+    countMessages();
+  }, [countMessages]);
 
   const scrollToBottom = () =>
     divRef.current?.scrollIntoView({ behavior: "smooth" });
 
   useEffect(() => {
-    setMessage("");
-    scrollToBottom();
-  }, [location, message]);
+    if (messagesData?.messages && messagesData.messages.length <= PAGE_SIZE) {
+      setMessage("");
+      scrollToBottom();
+    }
+  }, [location.pathname, messagesData?.messages]);
 
   const handleCreateMessage = async () => {
     await createMessage({
@@ -43,6 +62,21 @@ const Chat = () => {
     scrollToBottom();
   };
 
+  useEffect(() => {
+    if (messagesData?.messages && messagesCount !== undefined) {
+      setHasMore(messagesData.messages.length < messagesCount);
+    }
+  }, [messagesData?.messages, messagesCount]);
+
+  const handleLoadMore = async () => {
+    if (loading || !hasMore) return;
+    await fetchMore({
+      variables: {
+        skip: messagesData?.messages.length,
+      },
+    });
+  };
+
   return (
     <Stack
       sx={{
@@ -52,49 +86,66 @@ const Chat = () => {
     >
       <h1>{data?.chat.name}</h1>
       <Box sx={{ maxHeight: "70vh", overflow: "auto" }}>
-        {messagesData?.messages.map((message) => (
-          <Grid
-            container
-            key={message._id}
-            alignItems="center"
-            marginBottom="1rem"
-          >
-            <Grid
-              size={{
-                xs: 3,
-                md: 1,
-              }}
-            >
-              <Avatar src="" sx={{ width: 52, height: 52 }} />
-            </Grid>
-            <Grid
-              size={{
-                xs: 9,
-                md: 11,
-              }}
-            >
-              <Stack>
-                <Paper sx={{ width: "fit-content" }}>
-                  <Typography
-                    sx={{
-                      padding: "0.9rem",
+        <InfiniteScroll
+          pageStart={0}
+          isReverse={true}
+          loadMore={handleLoadMore}
+          hasMore={hasMore}
+          useWindow={false}
+        >
+          {messagesData &&
+            [...messagesData.messages]
+              .sort((messageA, messageB) => {
+                return (
+                  new Date(messageA.createdAt).getTime() -
+                  new Date(messageB.createdAt).getTime()
+                );
+              })
+              .map((message) => (
+                <Grid
+                  container
+                  key={message._id}
+                  alignItems="center"
+                  marginBottom="1rem"
+                >
+                  <Grid
+                    size={{
+                      xs: 2,
+                      lg: 1,
                     }}
                   >
-                    {message.content}
-                  </Typography>
-                </Paper>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    marginLeft: "0.25rem",
-                  }}
-                >
-                  {new Date(message.createdAt).toLocaleTimeString()}
-                </Typography>
-              </Stack>
-            </Grid>
-          </Grid>
-        ))}
+                    <Avatar src="" sx={{ width: 52, height: 52 }} />
+                  </Grid>
+                  <Grid
+                    size={{
+                      xs: 10,
+                      lg: 11,
+                    }}
+                  >
+                    <Stack>
+                      <Paper sx={{ width: "fit-content" }}>
+                        <Typography
+                          sx={{
+                            padding: "0.9rem",
+                          }}
+                        >
+                          {message.content}
+                        </Typography>
+                      </Paper>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          marginLeft: "0.25rem",
+                        }}
+                      >
+                        {new Date(message.createdAt).toLocaleTimeString()} -{" "}
+                        {new Date(message.createdAt).toLocaleDateString()}
+                      </Typography>
+                    </Stack>
+                  </Grid>
+                </Grid>
+              ))}
+        </InfiniteScroll>
         <div ref={divRef}></div>
       </Box>
       <Paper
@@ -104,6 +155,7 @@ const Chat = () => {
           justifySelf: "flex-end",
           alignItems: "center",
           width: "100%",
+          margin: "1rem 0",
         }}
       >
         <InputBase
