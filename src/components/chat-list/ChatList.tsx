@@ -71,6 +71,7 @@ export default function ChatList() {
             loadMore={handleLoadMore}
             hasMore={hasMore}
             useWindow={false}
+            initialLoad={false}
           >
             {data?.chats &&
               [...data.chats]

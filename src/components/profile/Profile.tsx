@@ -43,6 +43,7 @@ const Profile = () => {
     >
       <Typography variant="h1">{me?.data?.me.username}</Typography>
       <Avatar
+        src={me?.data?.me.imageUrl}
         sx={{
           width: 256,
           height: 256,

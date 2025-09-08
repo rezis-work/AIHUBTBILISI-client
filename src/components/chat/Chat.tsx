@@ -92,6 +92,7 @@ const Chat = () => {
           loadMore={handleLoadMore}
           hasMore={hasMore}
           useWindow={false}
+          initialLoad={false}
         >
           {messagesData &&
             [...messagesData.messages]
@@ -114,7 +115,19 @@ const Chat = () => {
                       lg: 1,
                     }}
                   >
-                    <Avatar src="" sx={{ width: 52, height: 52 }} />
+                    <Stack
+                      alignItems="center"
+                      justifyContent="center"
+                      spacing={1}
+                    >
+                      <Avatar
+                        src={message.user.imageUrl}
+                        sx={{ width: 52, height: 52 }}
+                      />
+                      <Typography variant="caption">
+                        {message.user.username}
+                      </Typography>
+                    </Stack>
                   </Grid>
                   <Grid
                     size={{
